@@ -6,7 +6,7 @@ if (process.env.NODE_ENV == "development") {
   willbeServer = 'http://spider.ittun.com/spider-oper'
 }
 let config = {
-  token: 'KE923jddu#@(DFDJiw1dI$*FYHHHHH',
+  token: 'KE923jddudk3FYjWedkHH',
   willbeServer: willbeServer
 }
 //直播服务 条件组合配置

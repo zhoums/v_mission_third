@@ -54,6 +54,18 @@ let VTHpage=1,
 let ep = new Eventproxy();
 ep.tail('postFinishAll',async function(postFinishAll){
   //await post(postFinishAll);
+  let _p=JSON.stringify(postFinishAll)
+  await $.ajax({
+    url:config.willbeServer+'/tb/v_payment/sync_micro_mission_daren_merchant_by_status.wb',
+    beforeSend: function(XMLHttpRequest) {
+      XMLHttpRequest.setRequestHeader("token", config.token);
+    },
+    type:'post',
+    data:{param:_p},
+    success(response){
+      console.log('postFinishAll',response)
+    }
+  })
   util.sleep(1000)
   // if(VTHpage<VTHtotalpage){
   if(VTHpage<3){
@@ -62,7 +74,7 @@ ep.tail('postFinishAll',async function(postFinishAll){
   }else{
     VTHpage=1;
     VTHtotalpage=0;
-    waitForVerifyOfmy();
+    // waitForVerifyOfmy(); //test api1 cancel waitForVerifyOfmy now
   }
 })
 ep.tail('postMyVerification',async (postMyVerification)=>{
