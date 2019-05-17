@@ -52,74 +52,7 @@ let VTHpage=1,
     VTHpagesize=10,
     VTHtotalpage=0;
 let ep = new Eventproxy();
-ep.tail('postFinishAll',async function(postFinishAll){
-  //await post(postFinishAll);
-  let _p=JSON.stringify(postFinishAll)
-  await $.ajax({
-    url:config.willbeServer+'/tb/v_payment/sync_micro_mission_daren_merchant_by_status.wb',
-    beforeSend: function(XMLHttpRequest) {
-      XMLHttpRequest.setRequestHeader("token", config.token);
-    },
-    type:'post',
-    data:{param:_p},
-    success(response){
-      console.log('postFinishAll',response)
-    }
-  })
-  util.sleep(1000)
-  // if(VTHpage<VTHtotalpage){
-  if(VTHpage<3){
-    VTHpage+=1;
-    fetchFinishAllData(VTHpage,VTHpagesize)
-  }else{
-    VTHpage=1;
-    VTHtotalpage=0;
-    // waitForVerifyOfmy(); //test api1 cancel waitForVerifyOfmy now
-  }
-})
-ep.tail('postMyVerification',async (postMyVerification)=>{
-  //await post(postMyVerification);
-  util.sleep(1000)
-  if(VTHpage<VTHtotalpage){
-  // if(VTHpage<10){
-    VTHpage+=1;
-    waitForVerifyOfmy(VTHpage,VTHpagesize)
-  }else{
-    VTHpage=1;
-    VTHtotalpage=0;
-    rejectedOfmy();
-  }
-})
-ep.tail('postMyRejection',async (postMyRejection)=>{
-  //await post(postMyRejection);
-  util.sleep(1000)
-  // if(VTHpage<VTHtotalpage){
-  if(VTHpage<3){
-    VTHpage+=1;
-    rejectedOfmy(VTHpage,VTHpagesize)
-  }else{
-    VTHpage=1;
-    VTHtotalpage=0;
-    // rejectedOfmy(); //todo:fetch userlist data;
-    nopayData(); //test
-  }
-})
-ep.tail('postDetailPage',function(postDetailPage){
-  console.log('ll function')
-})
-ep.tail('postNopay',function(postNopay){
-  //await post(postNopay);
-  util.sleep(1000)
-  if(VTHpage<VTHtotalpage){
-  // if(VTHpage<3){
-    VTHpage+=1;
-    nopayData(VTHpage,VTHpagesize)
-  }else{
-    VTHpage=1;
-    VTHtotalpage=0;
-    // rejectedOfmy();
-  }
-})
+
 // chrome.browserAction.onClicked.addListener(function(tab) {
 //   main();
 // });
@@ -142,6 +75,58 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 })
 
 // v-mission third mission
+ep.tail('postFinishAll',async function(postFinishAll){
+  postToWillbe(postFinishAll,'1')
+  // if(VTHpage<VTHtotalpage){
+  if(VTHpage<3){
+    VTHpage+=1;
+    fetchFinishAllData(VTHpage,VTHpagesize)
+  }else{
+    VTHpage=1;
+    VTHtotalpage=0;
+    waitForVerifyOfmy(); //test api1 cancel waitForVerifyOfmy now
+  }
+})
+ep.tail('postMyVerification',async (postMyVerification)=>{
+  //await post(postMyVerification);
+  postToWillbe(postMyVerification,'2')
+  if(VTHpage<VTHtotalpage){
+  // if(VTHpage<10){
+    VTHpage+=1;
+    waitForVerifyOfmy(VTHpage,VTHpagesize)
+  }else{
+    VTHpage=1;
+    VTHtotalpage=0;
+    rejectedOfmy();
+  }
+})
+ep.tail('postMyRejection',async (postMyRejection)=>{
+  //await post(postMyRejection);
+  postToWillbe(postMyRejection,'3')
+  // if(VTHpage<VTHtotalpage){
+  if(VTHpage<3){
+    VTHpage+=1;
+    rejectedOfmy(VTHpage,VTHpagesize)
+  }else{
+    VTHpage=1;
+    VTHtotalpage=0;
+    // rejectedOfmy(); //todo:fetch userlist data;
+    nopayData(); //test
+  }
+})
+ep.tail('postNopay',function(postNopay){
+  postToWillbe(postNopay,'4')
+  if(VTHpage<VTHtotalpage){
+  // if(VTHpage<3){
+    VTHpage+=1;
+    nopayData(VTHpage,VTHpagesize)
+  }else{
+    VTHpage=1;
+    VTHtotalpage=0;
+    // end
+  }
+})
+
 let checkIdentify=()=>{
   return new Promise((resolve,reject)=>{
     $.ajax({
@@ -165,19 +150,17 @@ let function_fetchData = (param,emitFunName,url)=>{
       if(_data.status==0){
         VTHtotalpage=_data.data.result?_data.data.result.pagination.totalPage:VTHtotalpage;
         //todo 详情页
-        //https://v.taobao.com/micromission/get_mission_detail_info.do?mission_id=15947767153&_ksTS=1557823555405_17
-        if(param.micro_mission_status&&param.micro_mission_status==-1){
-          for(let i=0;i<_data.data.result.microMissions.length;i++){
-            let id=_data.data.result.microMissions[i].microSubmissions[0].id;
-            await $.ajax({
-              url:`https://v.taobao.com/micromission/get_mission_detail_info.do?mission_id=${id}&_ksTS=1557823555405_17`,
-              success(data){
-                console.log('detail page',JSON.parse(data));
-                ep.emit('postDetailPage',JSON.parse(data))//post detail page data
-              }
-            })
-          }
-        }
+        // if(param.micro_mission_status&&param.micro_mission_status==-1){  // api1-详情页
+        //   for(let i=0;i<_data.data.result.microMissions.length;i++){
+        //     let id=_data.data.result.microMissions[i].microSubmissions[0].id;
+        //     await $.ajax({
+        //       url:`https://v.taobao.com/micromission/get_mission_detail_info.do?mission_id=${id}&_ksTS=1557823555405_17`,
+        //       success(data){
+        //         postToWillbe(JSON.parse(data).data.detail,'finishedDetail')
+        //       }
+        //     })
+        //   }
+        // }
         console.log('emit next')
         ep.emit(emitFunName,_data.data.result)
       }else{
@@ -229,10 +212,11 @@ let rejectedOfmy = (page=1,pageSize=VTHpagesize)=>{
   };
   function_fetchData(param,'postMyRejection')
 }
-let fetchDarenList = ()=>{
+let fetchMissionList = ()=>{
   $.ajax({
-    url:'',
+    url:`${config.willbeServer}/tb/v_payment/get_v_payment_ids.wb?token=KE923jddudk3FYjWedkHH&param=&page=1&pageSize=10`,
     data:'',
+    headers:{"token":config.token},
     success(data){
       ep.emit('',idLIST)//
     },
@@ -252,4 +236,18 @@ let nopayData =  (page=1,pageSize=VTHpagesize)=>{
     _input_charset:'UTF-8'
   };
   function_fetchData(param,'postNopay','https://v.taobao.com/micromission/req/get_micro_mission_by_statusv2.do')
+}
+let postToWillbe = async (param,code="")=>{
+  let _p = JSON.stringify(param);
+  await $.ajax({
+    url:config.willbeServer+'/tb/v_payment/sync_v_payment.wb',
+    beforeSend: function(XMLHttpRequest) {
+      XMLHttpRequest.setRequestHeader("token", config.token);
+    },
+    type:'post',
+    data:{param:_p,type},
+    success(response){
+      console.log('post to willbe result:',response)
+    }
+  })
 }

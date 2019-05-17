@@ -6,8 +6,4 @@
      }
    });
  $(function() {
-   chrome.runtime.sendMessage({
-     greeting:'vTHEmission',
-   }, function(response){});
-
  })
