@@ -1,6 +1,6 @@
 body {
   padding: 5%;
-  width: 300px;
+  width: 600px;
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
 }
 
@@ -19,5 +19,15 @@ body {
   display: flex;
   box-sizing: border-box;
   padding: 10px;
-  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#wrap .btn {
+  padding: 10px 5px;
+  margin: 0 10px;
+}
+
+#wrap p {
+  width: 100%;
+  margin-top: 10px;
 }
