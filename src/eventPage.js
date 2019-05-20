@@ -55,9 +55,6 @@ let VTHpage = 1,
   VTHtotalpage = 0;
 let ep = new Eventproxy();
 
-// chrome.browserAction.onClicked.addListener(function(tab) {
-//   main();
-// });
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.greeting == 'vTHEmission') {
     chrome.tabs.query({
@@ -157,7 +154,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // v-mission third mission
 ep.tail('postFinishAll', async function(postFinishAll) {
-  util.sleep(200)
   postToWillbe(postFinishAll, '1').finally(() => {
     if (VTHpage < VTHtotalpage) {
       // if (VTHpage < 3) {
@@ -167,13 +163,13 @@ ep.tail('postFinishAll', async function(postFinishAll) {
       VTHpage = 1;
       VTHtotalpage = 0;
       // missionFlag = false;
-      fetchMissionIdList(VTHpage, VTHpagesize, 1)
+      fetchMissionIdList(VTHpage, config.idItems, 1)
       // waitForVerifyOfmy(); //test api1 cancel waitForVerifyOfmy now
     }
   })
 })
 ep.tail('postMyVerification', async (postMyVerification) => {
-  util.sleep(200)
+  // util.sleep(200)
   postToWillbe(postMyVerification, '2').finally(() => {
     if (VTHpage < VTHtotalpage) {
       // if(VTHpage<10){
@@ -184,13 +180,13 @@ ep.tail('postMyVerification', async (postMyVerification) => {
       VTHtotalpage = 0;
 
       // rejectedOfmy();
-      fetchMissionIdList(VTHpage, VTHpagesize, 2)
+      fetchMissionIdList(VTHpage, config.idItems, 2)
     }
   })
 
 })
 ep.tail('postMyRejection', async (postMyRejection) => {
-  util.sleep(200)
+  // util.sleep(200)
   postToWillbe(postMyRejection, '3').finally(() => {
     if (VTHpage < VTHtotalpage) {
       // if (VTHpage < 3) {
@@ -199,16 +195,13 @@ ep.tail('postMyRejection', async (postMyRejection) => {
     } else {
       VTHpage = 1;
       VTHtotalpage = 0;
-      // missionFlag = false;
-      // rejectedOfmy(); //todo:fetch userlist data;
-      // nopayData(); //test
-      fetchMissionIdList(VTHpage, VTHpagesize, 3)
+      fetchMissionIdList(VTHpage, config.idItems, 3)
     }
   })
 
 })
 ep.tail('postNopay', async function(postNopay) {
-  util.sleep(200)
+  // util.sleep(200)
   postToWillbe(postNopay, '4').finally(() => {
     // util.sleep(100)
     if (VTHpage < VTHtotalpage) {
@@ -219,7 +212,7 @@ ep.tail('postNopay', async function(postNopay) {
       VTHpage = 1;
       VTHtotalpage = 0;
       // missionFlag = false;
-      fetchMissionIdList(VTHpage, VTHpagesize, 4); //取missionIdList
+      fetchMissionIdList(VTHpage, config.idItems, 4); //取missionIdList
       // end
     }
   })
@@ -229,7 +222,7 @@ ep.tail('postDetail', async function(pageDetail) {
   let code = pageDetail.code;
   delete pageDetail.pageLast;
   delete pageDetail.code;
-  util.sleep(200)
+  // util.sleep(200)
   postDetailToWillbe(pageDetail).finally(() => {
     // util.sleep(5000)
     if (VTHpage <= VTHtotalpage) {
@@ -237,7 +230,7 @@ ep.tail('postDetail', async function(pageDetail) {
       if (turn) {
         VTHpage += 1;
         // alert(VTHpage)
-        fetchMissionIdList(VTHpage, VTHpagesize, code)
+        fetchMissionIdList(VTHpage, config.idItems, code)
       }
     } else {
       VTHpage = 1;
@@ -247,10 +240,6 @@ ep.tail('postDetail', async function(pageDetail) {
         greeting: "popupTips",
         text: `数据已经全部爬完了`
       }, function(response) {})
-      // chrome.runtime.sendMessage({
-      //   greeting: "popupTips",
-      //   text: `数据已经全部爬完了`
-      // }, function(response) {})
       // end
     }
   })
@@ -271,7 +260,7 @@ let checkIdentify = () => {
 }
 let function_fetchData = (param, emitFunName, url) => {
   url = url ? url : 'https://v.taobao.com/micromission/req/get_micro_mission_daren_merchant_by_status.do';
-  util.sleep(200)
+  util.sleep(config.splitTimeOfItempage)
   $.ajax({
     url,
     data: param,
@@ -303,10 +292,6 @@ let fetchFinishAllData = (page = 1, pageSize = VTHpagesize) => {
     greeting: "popupTips",
     text: `正在爬取“交付中&已完成”第${page}页数据。。。`
   }, function(response) {})
-  // chrome.runtime.sendMessage({
-  //   greeting: "popupTips",
-  //   text: `正在爬取“交付中&已完成”第${page}页数据。。。`
-  // }, function(response) {})
   function_fetchData(param, 'postFinishAll')
 }
 let waitForVerifyOfmy = (page = 1, pageSize = VTHpagesize) => {
@@ -325,10 +310,6 @@ let waitForVerifyOfmy = (page = 1, pageSize = VTHpagesize) => {
     greeting: "popupTips",
     text: `正在爬取“待接单”第${page}页数据。。。`
   }, function(response) {})
-  // chrome.runtime.sendMessage({
-  //   greeting: "popupTips",
-  //   text: `正在爬取“待接单”第${page}页数据。。。`
-  // }, function(response) {})
   function_fetchData(param, 'postMyVerification')
 }
 let rejectedOfmy = (page = 1, pageSize = VTHpagesize) => {
@@ -347,13 +328,9 @@ let rejectedOfmy = (page = 1, pageSize = VTHpagesize) => {
     greeting: "popupTips",
     text: `正在爬取“被拒绝”第${page}页数据。。。`
   }, function(response) {})
-  // chrome.runtime.sendMessage({
-  //   greeting: "popupTips",
-  //   text: `正在爬取“被拒绝”第${page}页数据。。。`
-  // }, function(response) {})
   function_fetchData(param, 'postMyRejection')
 }
-let fetchMissionIdList = (page = 1, pageSize = 10, code) => {
+let fetchMissionIdList = (page = 1, pageSize = config.idItems, code) => {
   if (!code) {
     alert("Mission id is null")
     return;
@@ -362,11 +339,6 @@ let fetchMissionIdList = (page = 1, pageSize = 10, code) => {
     greeting: "popupTips",
     text: `正在爬取“详情页”第${page}页数据。。。。`
   }, function(response) {})
-  // chrome.runtime.sendMessage({
-  //   greeting: "popupTips",
-  //   text: `正在爬取“详情页”第${page}页数据。。。。`
-  // }, function(response) {})
-  util.sleep(200)
   $.ajax({
     url: `${config.willbeServer}/tb/v_payment/get_v_payment_ids.wb`,
     data: {
@@ -389,9 +361,9 @@ let fetchMissionIdList = (page = 1, pageSize = 10, code) => {
       }
   })
 }
-let fetchPageDetail = (idList, code) => {
-  idList.forEach((item, key) => {
-    $.ajax({
+let fetchPageDetail = async (idList, code) => {
+  let fn = async (item, key)=>{
+    await $.ajax({
       url: `https://v.taobao.com/micromission/get_mission_detail_info.do?mission_id=${item.missionId}&_ksTS=1557823555405_17`,
       success: function(data) {
         data = JSON.parse(data);
@@ -404,11 +376,13 @@ let fetchPageDetail = (idList, code) => {
         if (!!data.data.detail) {
           ep.emit('postDetail', data.data.detail)
         }
-
       }
     })
-    util.sleep(200)
-  })
+  }
+  for(let i=0;i<idList.length;i++){
+    await fn(idList[i],i);
+    util.sleep(config.splitTimeOfDetailpage)
+  }
 }
 let nopayData = (page = 1, pageSize = VTHpagesize) => {
   let param = {
@@ -420,16 +394,10 @@ let nopayData = (page = 1, pageSize = VTHpagesize) => {
     _output_charset: 'UTF-8',
     _input_charset: 'UTF-8'
   };
-  // console.log(`正在爬取“待我付款”数据第${page}页。`)
   chrome.tabs.sendRequest(VSCtab, {
     greeting: "popupTips",
     text: `正在爬取“待我付款”第${page}页数据。。。`
   }, function(response) {})
-  // chrome.runtime.sendMessage({
-  //   greeting: "popupTips",
-  //   // text: `正在爬取“待我付款”数据第${page}页。`
-  //   text: `正在爬取“待我付款”第${page}页数据。。。`
-  // }, function(response) {})
   function_fetchData(param, 'postNopay', 'https://v.taobao.com/micromission/req/get_micro_mission_by_statusv2.do')
 }
 let postToWillbe = async (param, code = "") => {
@@ -486,7 +454,6 @@ let postDetailToWillbe = (parma) => {
         param: _p,
       },
       success(response) {
-        // console.log('post to willbe result:', response)
         resolve(null)
       },
       error(error) {
