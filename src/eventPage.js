@@ -337,7 +337,7 @@ let fetchMissionIdList = (page = 1, pageSize = config.idItems, code) => {
   }
   chrome.tabs.sendRequest(VSCtab, {
     greeting: "popupTips",
-    text: `正在爬取“详情页”第${page}页数据。。。。`
+    text: `正在爬取“详情页”第${page}页（每页100条）数据。。。。`
   }, function(response) {})
   $.ajax({
     url: `${config.willbeServer}/tb/v_payment/get_v_payment_ids.wb`,
