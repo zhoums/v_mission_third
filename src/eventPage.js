@@ -225,7 +225,7 @@ ep.tail('postDetail', async function(pageDetail) {
   // util.sleep(200)
   postDetailToWillbe(pageDetail).finally(() => {
     // util.sleep(5000)
-    if (VTHpage <= VTHtotalpage) {
+    if (VTHpage < VTHtotalpage) {
       // if (VTHpage < 3) {
       if (turn) {
         VTHpage += 1;
